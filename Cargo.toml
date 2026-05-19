@@ -1,0 +1,23 @@
+[package]
+name = "tcpbin"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.91"
+readme = "README.md"
+repository = "https://github.com/DoumanAsh/tcpbin"
+license = "BSL-1.0"
+include = [
+    "**/*.rs",
+    "Cargo.toml",
+    "README.md"
+]
+
+[dependencies]
+ha_proxy_protocol = "0.2.3"
+
+[dependencies.tracing]
+version = "0.1"
+optional = true
+
+[features]
+tracing = ["dep:tracing"]
