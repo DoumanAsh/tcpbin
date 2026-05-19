@@ -41,13 +41,15 @@ fn blocking_socket_handler(mut socket: net::TcpStream, mut remote_ip: net::Socke
     }
 
     if let Err(error) = socket.write_fmt(format_args!("{}", remote_ip.ip())) {
-        error!("{}: Write error: {}", remote_ip, error);
+        io_error!(error, "Write error", remote_ip);
+        return;
     }
     if let Err(error) = socket.flush() {
-        error!("{}: Flush error: {}", remote_ip, error);
+        io_error!(error, "Flush error", remote_ip);
+        return;
     }
     if let Err(error) = socket.shutdown(net::Shutdown::Both) {
-        error!("{}: Shutdown error: {}", remote_ip, error);
+        io_error!(error, "Shutdown error", remote_ip);
     }
 }
 
