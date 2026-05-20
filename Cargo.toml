@@ -24,6 +24,17 @@ version = "1"
 features = ["net", "time", "io-util", "rt"]
 optional = true
 
+[dependencies.arg]
+version = "0.4"
+features = ["std"]
+optional = true
+
+[[bin]]
+name = "tcpbin"
+path = "src/main.rs"
+required-features = ["cli"]
+
 [features]
 tracing = ["dep:tracing"]
 tokio = ["dep:tokio"]
+cli = ["arg", "tokio?/macros"]

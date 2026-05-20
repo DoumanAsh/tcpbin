@@ -9,6 +9,8 @@ use core::net;
 pub const DEFAULT_LOCAL_IP: net::IpAddr = net::IpAddr::V4(net::Ipv4Addr::UNSPECIFIED);
 
 #[cfg(feature = "tracing")]
+#[macro_export]
+#[doc(hidden)]
 macro_rules! info {
     ($($input:tt)*) => {
         ::tracing::info!($($input)*)
@@ -16,6 +18,8 @@ macro_rules! info {
 }
 
 #[cfg(all(not(debug_assertions), not(feature = "tracing")))]
+#[macro_export]
+#[doc(hidden)]
 macro_rules! info {
     ($($input:tt)*) => {
         #[allow(unused)]
@@ -26,6 +30,8 @@ macro_rules! info {
 }
 
 #[cfg(all(debug_assertions, not(feature = "tracing")))]
+#[macro_export]
+#[doc(hidden)]
 macro_rules! info {
     ($($input:tt)*) => {
         ::std::println!($($input)*)
@@ -33,6 +39,8 @@ macro_rules! info {
 }
 
 #[cfg(feature = "tracing")]
+#[macro_export]
+#[doc(hidden)]
 macro_rules! error {
     ($($input:tt)*) => {
         ::tracing::error!($($input)*)
@@ -40,6 +48,8 @@ macro_rules! error {
 }
 
 #[cfg(all(not(debug_assertions), not(feature = "tracing")))]
+#[macro_export]
+#[doc(hidden)]
 macro_rules! error {
     ($($input:tt)*) => {
         #[allow(unused)]
@@ -50,6 +60,8 @@ macro_rules! error {
 }
 
 #[cfg(all(debug_assertions, not(feature = "tracing")))]
+#[macro_export]
+#[doc(hidden)]
 macro_rules! error {
     ($($input:tt)*) => {
         ::std::eprintln!($($input)*)

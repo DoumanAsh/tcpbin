@@ -88,11 +88,17 @@ impl IpEcho {
         self
     }
 
+    #[inline]
+    ///Returns address to be used
+    pub const fn addr(&self) -> net::SocketAddr {
+        net::SocketAddr::new(self.addr, self.port)
+    }
+
     ///Binds socket, starting to accept connections continuously
     ///
     ///This never exits unless underlying OS error causes it to stop accepting new connection
     pub fn run_blocking(&self) -> Result<(), io::Error> {
-        let addr = net::SocketAddr::new(self.addr, self.port);
+        let addr = self.addr();
         let listener = net::TcpListener::bind(addr)?;
 
         loop {
@@ -107,7 +113,7 @@ impl IpEcho {
     #[cfg(feature = "tokio")]
     ///Returns future that binds socket to listen for incoming connections
     pub fn run_tokio(&self) -> impl core::future::Future<Output = Result<(), io::Error>> + Send + Sync + 'static {
-        let addr = net::SocketAddr::new(self.addr, self.port);
+        let addr = self.addr();
         async move {
             let listener = tokio::net::TcpListener::bind(addr).await?;
             loop {
