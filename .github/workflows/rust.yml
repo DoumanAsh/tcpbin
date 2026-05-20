@@ -24,4 +24,4 @@ jobs:
     with:
       min-rustc-version: "1.91.0"
       cargo-no-features: true
-      cargo-features: "tracing"
+      cargo-features: "tracing,tokio"

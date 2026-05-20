@@ -68,5 +68,6 @@ macro_rules! io_error {
     };
 }
 
+mod utils;
 mod ip;
 pub use ip::IpEcho;

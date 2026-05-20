@@ -19,5 +19,11 @@ ha_proxy_protocol = "0.2.3"
 version = "0.1"
 optional = true
 
+[dependencies.tokio]
+version = "1"
+features = ["net", "time", "io-util", "rt"]
+optional = true
+
 [features]
 tracing = ["dep:tracing"]
+tokio = ["dep:tokio"]
