@@ -9,6 +9,12 @@ use crate::utils::FmtBuffer;
 //otherwise we do not care for user's input
 const READ_TIMEOUT: time::Duration = time::Duration::from_secs(1);
 
+enum ExtractState {
+    Extracted,
+    Invalid,
+    Incomplete,
+}
+
 fn blocking_socket_handler(mut socket: net::TcpStream, mut remote_ip: net::SocketAddr) {
     use io::{Read, Write};
 
@@ -19,11 +25,32 @@ fn blocking_socket_handler(mut socket: net::TcpStream, mut remote_ip: net::Socke
         return;
     }
 
+    let mut extract_state = ExtractState::Incomplete;
     loop {
         match socket.read(&mut buffer[buffer_len..]) {
             Ok(0) => break,
             Ok(read_len) => {
-                buffer_len += read_len
+                buffer_len += read_len;
+                match ha_proxy_protocol::parse(&buffer[..buffer_len]) {
+                    Ok(proxy_info) => {
+                        let (proxy_info, _) = proxy_info.into_generic();
+                        if let Some(proxy_info) = proxy_info {
+                            if let ha_proxy_protocol::Addr::Inet(real_addr) = proxy_info.src {
+                                extract_state = ExtractState::Extracted;
+                                remote_ip = real_addr;
+
+                                break;
+                            }
+                        }
+                        extract_state = ExtractState::Invalid;
+                        break;
+                    },
+                    Err(ha_proxy_protocol::ParseError::Incomplete) => continue,
+                    Err(_) => {
+                        extract_state = ExtractState::Invalid;
+                        break;
+                    }
+                }
             }
             Err(error) if error.kind() == io::ErrorKind::TimedOut || error.kind() == io::ErrorKind::WouldBlock => break,
             Err(error) => {
@@ -33,11 +60,13 @@ fn blocking_socket_handler(mut socket: net::TcpStream, mut remote_ip: net::Socke
         }
     }
 
-    if let Ok(proxy_info) = ha_proxy_protocol::parse(&buffer[..buffer_len]) {
-        let (proxy_info, _) = proxy_info.into_generic();
-        if let Some(proxy_info) = proxy_info {
-            if let ha_proxy_protocol::Addr::Inet(real_addr) = proxy_info.src {
-                remote_ip = real_addr;
+    if let ExtractState::Incomplete = extract_state {
+        if let Ok(proxy_info) = ha_proxy_protocol::parse(&buffer[..buffer_len]) {
+            let (proxy_info, _) = proxy_info.into_generic();
+            if let Some(proxy_info) = proxy_info {
+                if let ha_proxy_protocol::Addr::Inet(real_addr) = proxy_info.src {
+                    remote_ip = real_addr;
+                }
             }
         }
     }
@@ -123,12 +152,32 @@ impl IpEcho {
 
                     let mut buffer_len = 0;
                     let mut buffer = [0u8; 128];
+                    let mut extract_state = ExtractState::Incomplete;
                     loop {
                         let read_op = tokio::time::timeout(READ_TIMEOUT, socket.read(&mut buffer[buffer_len..]));
                         match read_op.await {
                             Ok(Ok(0)) => break,
                             Ok(Ok(read_len)) => {
-                                buffer_len += read_len
+                                buffer_len += read_len;
+                                match ha_proxy_protocol::parse(&buffer[..buffer_len]) {
+                                    Ok(proxy_info) => {
+                                        let (proxy_info, _) = proxy_info.into_generic();
+                                        if let Some(proxy_info) = proxy_info {
+                                            if let ha_proxy_protocol::Addr::Inet(real_addr) = proxy_info.src {
+                                                extract_state = ExtractState::Extracted;
+                                                remote_ip = real_addr;
+                                                break;
+                                            }
+                                        }
+                                        extract_state = ExtractState::Invalid;
+                                        break;
+                                    },
+                                    Err(ha_proxy_protocol::ParseError::Incomplete) => continue,
+                                    Err(_) => {
+                                        extract_state = ExtractState::Invalid;
+                                        break;
+                                    }
+                                }
                             }
                             Ok(Err(error)) => {
                                 error!("{}: Socket error(kind={:?}): {}", remote_ip, error.kind(), error);
@@ -138,11 +187,13 @@ impl IpEcho {
                         }
                     }
 
-                    if let Ok(proxy_info) = ha_proxy_protocol::parse(&buffer[..buffer_len]) {
-                        let (proxy_info, _) = proxy_info.into_generic();
-                        if let Some(proxy_info) = proxy_info {
-                            if let ha_proxy_protocol::Addr::Inet(real_addr) = proxy_info.src {
-                                remote_ip = real_addr;
+                    if let ExtractState::Incomplete = extract_state {
+                        if let Ok(proxy_info) = ha_proxy_protocol::parse(&buffer[..buffer_len]) {
+                            let (proxy_info, _) = proxy_info.into_generic();
+                            if let Some(proxy_info) = proxy_info {
+                                if let ha_proxy_protocol::Addr::Inet(real_addr) = proxy_info.src {
+                                    remote_ip = real_addr;
+                                }
                             }
                         }
                     }
