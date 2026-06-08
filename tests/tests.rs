@@ -1,7 +1,7 @@
 use std::{net, thread, time};
 use std::io::{self, Write};
 
-use tcpbin::{DEFAULT_LOCAL_IP, IpEcho};
+use tcpbin::{DEFAULT_LOCAL_IP, IpEcho, Echo};
 
 #[test]
 fn should_detect_ip() {
@@ -43,4 +43,24 @@ fn should_detect_ip_via_proxy_v1() {
     let mut out = String::new();
     io::Read::read_to_string(&mut socket, &mut out).expect("to read ip");
     assert_eq!(out, "255.1.2.3");
+}
+
+#[test]
+fn should_echo_data() {
+    const PORT: u16 = 45003;
+    const ADDR: net::SocketAddr = net::SocketAddr::new(net::IpAddr::V4(net::Ipv4Addr::LOCALHOST), PORT);
+
+    let _ = thread::spawn(|| {
+        let _ = Echo::new().with_port(PORT).run_blocking();
+    });
+
+    std::thread::sleep(time::Duration::from_secs(1));
+    let mut socket = net::TcpStream::connect(ADDR).expect("to connect");
+    std::thread::yield_now();
+
+    socket.write_all(b"echo-test").expect("write all");
+
+    let mut out = String::new();
+    io::Read::read_to_string(&mut socket, &mut out).expect("to read ip");
+    assert_eq!(out, "echo-test");
 }

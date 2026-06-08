@@ -3,8 +3,9 @@
 #![warn(missing_docs)]
 #![allow(clippy::style)]
 
-use core::net;
+use core::{net, time};
 
+const READ_TIMEOUT: time::Duration = time::Duration::from_secs(1);
 ///Default local IP to be used
 pub const DEFAULT_LOCAL_IP: net::IpAddr = net::IpAddr::V4(net::Ipv4Addr::UNSPECIFIED);
 
@@ -69,6 +70,15 @@ macro_rules! error {
 }
 
 macro_rules! io_error {
+    ($error:expr, $description:literal) => {
+        use ::std::io::ErrorKind;
+        let error = $error;
+        if !::core::matches!(error.kind(), ErrorKind::BrokenPipe | ErrorKind::NotConnected) {
+            error!("{}(kind={:?}): {}", $description, error.kind(), error);
+        } else {
+            info!("{}(kind={:?}): {}", $description, error.kind(), error);
+        }
+    };
     ($error:expr, $description:literal, $addr:expr) => {
         use ::std::io::ErrorKind;
         let error = $error;
@@ -83,3 +93,5 @@ macro_rules! io_error {
 mod utils;
 mod ip;
 pub use ip::IpEcho;
+mod echo;
+pub use echo::Echo;

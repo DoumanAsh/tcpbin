@@ -1,13 +1,7 @@
-use crate::DEFAULT_LOCAL_IP;
-
-use core::time;
 use std::{io, net, thread};
 
+use crate::{READ_TIMEOUT, DEFAULT_LOCAL_IP};
 use crate::utils::FmtBuffer;
-
-//If we receive haproxy info, it will come immediately upon connection establishment
-//otherwise we do not care for user's input
-const READ_TIMEOUT: time::Duration = time::Duration::from_secs(1);
 
 enum ExtractState {
     Extracted,
@@ -20,6 +14,8 @@ fn blocking_socket_handler(mut socket: net::TcpStream, mut remote_ip: net::Socke
 
     let mut buffer_len = 0;
     let mut buffer = [0u8; 128];
+    //If we receive haproxy info, it will come immediately upon connection establishment
+    //otherwise we do not care for user's input
     if let Err(error) = socket.set_read_timeout(Some(READ_TIMEOUT)) {
         error!("{}: Socket timeout set error: {}", remote_ip, error);
         return;
