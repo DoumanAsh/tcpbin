@@ -38,3 +38,10 @@ required-features = ["cli"]
 tracing = ["dep:tracing"]
 tokio = ["dep:tokio"]
 cli = ["arg", "tokio?/macros"]
+
+[profile.release]
+lto = 'thin'
+opt-level = 3
+codegen-units = 1
+strip = true
+debug = false
