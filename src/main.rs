@@ -11,7 +11,7 @@ struct Cli {
     #[arg(long = "host", default_value = "IpAddr::V4(Ipv4Addr::UNSPECIFIED)")]
     ///Specifies IP address to bind server with. Defaults to 0.0.0.0
     host: IpAddr,
-    #[arg(long = "ip-echo-port", default_value = "59000")]
+    #[arg(long = "echo-port", default_value = "59000")]
     ///Specifies port for Data Echo server. Defaults to 59000.
     echo_port: u16,
     #[arg(long = "ip-echo-port", default_value = "59001")]
