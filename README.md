@@ -8,7 +8,15 @@ TCPBin - A simple utility TCP server
 
 MSRV 1.85
 
+## Build features
+
+- `cli` - Enables to build command line binary to run server
+- `tokio` - Enables async version of all server handlers. Otherwise there is simple blocking version
+- `tokio` - Enables `tokio` logging
+
 ## Usage
+
+You can download pre-built binaries [here](https://github.com/DoumanAsh/tcpbin/releases/latest)
 
 ```
 tcpbin 0.1.2

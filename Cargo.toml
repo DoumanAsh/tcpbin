@@ -1,5 +1,6 @@
 [package]
 name = "tcpbin"
+description = "Simple library/CLI providing TCP echo server"
 version = "0.1.2"
 edition = "2024"
 rust-version = "1.91"
@@ -9,7 +10,8 @@ license = "BSL-1.0"
 include = [
     "**/*.rs",
     "Cargo.toml",
-    "README.md"
+    "README.md",
+    "LICENSE"
 ]
 
 [dependencies]
@@ -45,3 +47,6 @@ opt-level = 3
 codegen-units = 1
 strip = true
 debug = false
+
+[package.metadata.docs.rs]
+features = ["tokio"]
