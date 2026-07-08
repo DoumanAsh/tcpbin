@@ -12,7 +12,7 @@ MSRV 1.85
 
 - `cli` - Enables to build command line binary to run server
 - `tokio` - Enables async version of all server handlers. Otherwise there is simple blocking version
-- `tokio` - Enables `tokio` logging
+- `tracing` - Enables `tracing` logging
 
 ## Usage
 
