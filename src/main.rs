@@ -5,16 +5,16 @@ use arg::Args;
 use core::net::{IpAddr, Ipv4Addr};
 
 #[derive(Args, Debug)]
-#[arg(infer_name)]
+#[arg(infer_name, env_prefix = "TCPBIN")]
 ///TCPBin server
 struct Cli {
-    #[arg(long = "host", default_value = "IpAddr::V4(Ipv4Addr::UNSPECIFIED)")]
+    #[arg(long = "host", default_value = "IpAddr::V4(Ipv4Addr::UNSPECIFIED)", env_value)]
     ///Specifies IP address to bind server with. Defaults to 0.0.0.0
     host: IpAddr,
-    #[arg(long = "echo-port", default_value = "59000")]
+    #[arg(long = "echo-port", default_value = "59000", env_value)]
     ///Specifies port for Data Echo server. Defaults to 59000.
     echo_port: u16,
-    #[arg(long = "ip-echo-port", default_value = "59001")]
+    #[arg(long = "ip-echo-port", default_value = "59001", env_value)]
     ///Specifies port for IP Echo server. Defaults to 59001.
     ip_echo_port: u16,
 }
