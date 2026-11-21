@@ -42,7 +42,7 @@ tokio = ["dep:tokio"]
 cli = ["arg", "tokio?/macros"]
 
 [profile.release]
-lto = 'thin'
+lto = true
 opt-level = 3
 codegen-units = 1
 strip = true

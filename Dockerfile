@@ -4,7 +4,7 @@ WORKDIR /src
 
 COPY . /src
 
-RUN cargo build --release --features tokio,cli
+RUN cargo auditable build --release --features tokio,cli
 
 FROM scratch
 COPY --from=build /src/target/release/tcpbin /tcpbin
