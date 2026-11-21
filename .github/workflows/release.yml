@@ -17,6 +17,7 @@ on:
 
 jobs:
   rust:
+    name: "${{ github.event.repository.name }}"
     if: github.event.pull_request.draft == false
     uses: DoumanAsh/douman-ci/.github/workflows/release-rust.yaml@master
     secrets:
