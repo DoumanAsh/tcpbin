@@ -46,7 +46,7 @@ jobs:
       use_oci: true
       platform: "linux"
       archs: "amd64 arm64"
-      upload_container: ${{ github.event.pull_request.draft == false }}
+      upload_container: ${{ github.event_name != 'pull_request' }}
       docker_user: "douman"
       github_user: "doumanash"
       quay_user: "doumanash"
